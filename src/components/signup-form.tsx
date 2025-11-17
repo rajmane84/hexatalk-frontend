@@ -1,189 +1,131 @@
-// import { handleUserSignup } from "@/utils/auth.helper";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { toast } from "sonner";
 import clsx from "clsx";
+import axios from "axios";
+import FormInput from "./form-input";
+import { useEffect } from "react";
 
-interface ISignupError {
-  username?: string;
-  password?: string;
-  api?: string;
-}
-
-const handleUserSignup = async (
-  email: string,
-  password: string,
-  username: string,
-) => {
-  console.log(username, password, email);
+type FormFields = {
+  email: string;
+  password: string;
+  username: string;
 };
 
+type ApiErrorResponse = {
+  message: string;
+}
+
 function SignUpForm() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [successMessage, setSuccessMessage] = useState<string>("");
-  const [errors, setErrors] = useState<{
-    password?: string;
-    username?: string;
-    api?: string;
-  }>({});
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<FormFields>({
+    defaultValues: { email: "", username: "", password: "" },
+  });
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrors({});
-    setSuccessMessage("");
-
-    const newErrors: ISignupError = {};
-
-    if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters long.";
-    }
-
-    if (username.length < 3 || username.length > 20) {
-      newErrors.username = "Username must be between 3 and 20 characters long.";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      setIsLoading(false);
-      return;
-    }
-
+  const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    //We don't have to do the prevent default because handleSubmit do that for us
     try {
-      await handleUserSignup(email, password, username);
-      setSuccessMessage("Sign-up successful!");
-      setErrors({});
-      navigate("/sign-in");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      setErrors({ api: error.message as string });
-    } finally {
-      setIsLoading(false);
+      await axios.post(
+        `${import.meta.env.VITE_HTTP_BACKEND_URL}/api/v1/auth/sign-up`,
+        data,
+        { withCredentials: true, timeout: 10_000 },
+      );
+
+      toast("Signup successfull ✅");
+      navigate("/");
+    } catch (error: unknown) {
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        console.log("Axios error:", error.response?.data?.message);
+
+        setError("root", {
+          message: (error.response?.data?.message ??
+            "Something went wrong") as string,
+        });
+      } else if (error instanceof Error) {
+        setError("root", { message: error.message });
+      } else {
+        setError("root", { message: "Unexpected error" });
+      }
     }
   };
 
+    useEffect(() => {
+      if (errors.root?.message) {
+        toast(errors.root.message);
+      }
+    }, [errors.root]);
+
   return (
-    <form className={clsx("w-full max-w-md space-y-6")} onSubmit={handleSubmit}>
-      {/* Email */}
-      <div className={clsx("space-y-2")}>
-        <label
-          htmlFor="email"
-          className={clsx("text-sm font-medium text-purple-200")}
-        >
-          Email
-        </label>
+    <form
+      className="w-full max-w-md space-y-6"
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <FormInput
+        label="Email"
+        type="text"
+        id="email"
+        placeholder="example@something.com"
+        error={errors.email?.message}
+        {...register("email", {
+          required: "Email is required",
+          pattern: {
+            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+            message: "Enter a valid email",
+          },
+        })}
+      />
 
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className={clsx(
-            "flex h-10 w-full rounded-md border border-neutral-600 bg-neutral-700 px-3 py-2",
-            "text-base text-neutral-100 placeholder-neutral-400",
-            "transition-all outline-none",
-            "focus-visible:ring-1 focus-visible:ring-purple-500 focus-visible:ring-offset-2",
-            "ring-offset-purple-900",
-            "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          )}
-          autoComplete="email"
-          placeholder="example@something.com"
-        />
+      <FormInput
+        label="Password"
+        type="password"
+        id="password"
+        placeholder="Enter your password"
+        autoComplete="current-password"
+        error={errors.password?.message}
+        {...register("password", {
+          required: "Password is required",
+          minLength: {
+            value: 8,
+            message: "Password must be at least 8 characters",
+          },
+        })}
+      />
 
-        {errors.api && (
-          <p className={clsx("text-sm text-purple-400")}>{errors.api}</p>
-        )}
-      </div>
+      <FormInput
+        label="Username"
+        type="text"
+        id="username"
+        autoComplete="username"
+        placeholder="Enter username"
+        error={errors.username?.message}
+        {...register("username", {
+          required: "Username is required",
+          minLength: {
+            value: 5,
+            message: "Username must be at least 5 characters",
+          },
+        })}
+      />
 
-      {/* Password */}
-      <div className={clsx("space-y-2")}>
-        <label
-          htmlFor="password"
-          className={clsx("text-sm font-medium text-purple-200")}
-        >
-          Password
-        </label>
-
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className={clsx(
-            "flex h-10 w-full rounded-md border border-neutral-600 bg-neutral-700 px-3 py-2",
-            "text-base text-neutral-100 placeholder-neutral-400",
-            "transition-all outline-none",
-            "focus-visible:ring-1 focus-visible:ring-purple-500 focus-visible:ring-offset-2",
-            "ring-offset-purple-900",
-            "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          )}
-          autoComplete="current-password"
-          placeholder="Enter your password"
-        />
-
-        {errors.password && (
-          <p className={clsx("text-sm text-purple-400")}>{errors.password}</p>
-        )}
-      </div>
-
-      {/* Username */}
-      <div className={clsx("space-y-2")}>
-        <label
-          htmlFor="username"
-          className={clsx("text-sm font-medium text-purple-200")}
-        >
-          Username
-        </label>
-
-        <input
-          id="username"
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          className={clsx(
-            "flex h-10 w-full rounded-md border border-neutral-600 bg-neutral-700 px-3 py-2",
-            "text-base text-neutral-100 placeholder-neutral-400",
-            "transition-all outline-none",
-            "focus-visible:ring-1 focus-visible:ring-purple-500 focus-visible:ring-offset-2",
-            "ring-offset-purple-900",
-            "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          )}
-          autoComplete="username"
-          placeholder="Username"
-        />
-
-        {errors.username && (
-          <p className={clsx("text-sm text-purple-400")}>{errors.username}</p>
-        )}
-      </div>
-
-      {/* Submit Button */}
       <button
         type="submit"
-        disabled={isLoading}
+        disabled={isSubmitting}
         className={clsx(
           "inline-flex h-10 w-full items-center justify-center rounded-md",
-          "bg-purple-500 font-medium text-white transition-all duration-300",
-          "outline-none hover:bg-purple-600",
-          "focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2",
+          "bg-purple-500 font-medium text-white transition-color duration-300",
+          "border-none hover:bg-linear-to-tr from-purple-600 to-purple-500",
           "cursor-pointer disabled:pointer-events-none disabled:opacity-50",
         )}
       >
-        {isLoading ? "Submitting..." : "Submit"}
+        {isSubmitting ? "Submitting..." : "Submit"}
       </button>
-
-      {successMessage && (
-        <p className={clsx("text-center text-sm text-green-400")}>
-          {successMessage}
-        </p>
-      )}
     </form>
   );
 }

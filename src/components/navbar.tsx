@@ -39,12 +39,12 @@ const Navbar = () => {
       <div
         className={clsx(
           "insex-x-0 fixed top-0 z-10 flex h-16 w-full items-center justify-between border-b border-b-white/25 px-[100px] py-2",
-          "bg-gradient-to-tr from-white/15 to-black/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.4)] backdrop-blur-md",
+          "bg-linear-to-tr from-white/15 to-black/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.4)] backdrop-blur-md",
         )}
       >
         <div
-          onClick={() => navigate("/chat")}
-          className="flex items-center gap-4"
+          onClick={() => navigate("/")}
+          className="flex cursor-pointer items-center gap-4"
         >
           <img
             alt="hexatalk-logo"
@@ -53,7 +53,7 @@ const Navbar = () => {
             width={100}
             className="size-10"
           />
-          <h1 className="text-xl font-semibold tracking-tight text-neutral-300">
+          <h1 className="pointer-events-none text-xl font-semibold tracking-tight text-neutral-300">
             HexaTalk
           </h1>
         </div>
@@ -62,7 +62,7 @@ const Navbar = () => {
           className={clsx(
             "shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.4)] backdrop-blur-md",
             "border border-transparent hover:border-white/10 hover:bg-linear-to-tr hover:from-white/15 hover:to-black/30",
-            "relative h-10 rounded-md cursor-pointer",
+            "relative h-10 cursor-pointer rounded-md",
             "flex items-center justify-center px-4",
           )}
         >
