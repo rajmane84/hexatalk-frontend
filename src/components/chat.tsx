@@ -3,8 +3,9 @@ import { DoubleTickIcon } from "./icons";
 import clsx from "clsx";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { type Friends } from "../api/user.api";
 
-const Chat = () => {
+const Chat = ({ chat }: { chat: Friends }) => {
   const [lastMessageSeen, setLastMessageSeen] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -20,7 +21,7 @@ const Chat = () => {
     >
       <Avatar />
       <div className="flex flex-col gap-0.5">
-        <h1 className="text-md font-semibold text-white">Raj Mane</h1>
+        <h1 className="text-md font-semibold text-white">{chat.username}</h1>
         <div className="flex items-center gap-0.5">
           <DoubleTickIcon
             className={clsx(
@@ -31,9 +32,9 @@ const Chat = () => {
           <p className="text-xs font-medium text-neutral-400">Good night!!</p>
         </div>
       </div>
-      <div className="absolute top-4 right-2 flex size-6 items-center justify-center rounded-full bg-purple-600">
-        <span className="text-xs text-white">12</span>
-      </div>
+      {chat.unreadCount > 0 && <div className="absolute top-4 right-2 flex size-6 items-center justify-center rounded-full bg-purple-600">
+        <span className="text-xs text-white">{chat.unreadCount}</span>
+      </div>}
     </div>
   );
 };

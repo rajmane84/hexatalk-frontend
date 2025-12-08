@@ -5,7 +5,7 @@ import ProfileMenu from "./profile-menu";
 import { LogoutIcon, SettingsIcon, SparkleIcon, UserIcon } from "./icons";
 import { Outlet, useNavigate } from "react-router-dom";
 import Container from "./container";
-import { handleUserLogout } from "../api/auth";
+import { handleUserLogout } from "../api/auth.api";
 
 export interface IMenuItem {
   label: string;

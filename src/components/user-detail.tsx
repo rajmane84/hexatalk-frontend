@@ -1,5 +1,5 @@
 import Avatar from './avatar';
-import clsx from 'clsx';
+import { cn } from '../utils/cn';
 import { CloseIcon, SearchIcon } from './icons';
 import { useState } from 'react';
 import SearchBar from './search-bar';
@@ -10,7 +10,7 @@ const UserDetail = () => {
 
   return (
     <div
-      className={clsx(
+      className={cn(
         'fixed top-16 left-[300px] flex h-12 w-[calc(100vw-300px)] items-center justify-between px-4 py-8',
         'border-b border-b-neutral-100/20 bg-neutral-900/50 backdrop-blur-md',
         'flex items-center justify-between',
@@ -18,11 +18,11 @@ const UserDetail = () => {
     >
       <div className="flex items-center gap-4">
         <Avatar />
-        <h1 className="text-md font-semibold text-neutral-300">Raj Mane</h1>
+        <h1 className="text-md font-semibold text-neutral-300 select-none">Raj Mane</h1>
       </div>
 
       <SearchIcon
-        classname="cursor-pointer"
+        classname="cursor-pointer select-none"
         motionprops={{
           initial: false,
           whileTap: { scale: [0.6, 1] },

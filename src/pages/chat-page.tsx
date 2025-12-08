@@ -17,6 +17,8 @@ const ChatPage = () => {
     { id: 4, text: "A chat app built with Next.js 😄", from: "me" },
   ]);
 
+  // As soon as we land on this page we need to create a ws connection
+
   const sendMessage = (msg: string) => {
     if (!msg.trim()) return;
 
