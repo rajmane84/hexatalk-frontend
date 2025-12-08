@@ -35,7 +35,7 @@ const SignUp = () => {
                href="/sign-in"
                className="hover:text-puple-500/90 font-medium text-purple-500 transition-colors"
              >
-               Sign up
+               Sign In
              </a>
            </p>
          </div>

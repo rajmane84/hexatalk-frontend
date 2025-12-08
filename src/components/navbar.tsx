@@ -5,11 +5,12 @@ import ProfileMenu from "./profile-menu";
 import { LogoutIcon, SettingsIcon, SparkleIcon, UserIcon } from "./icons";
 import { Outlet, useNavigate } from "react-router-dom";
 import Container from "./container";
+import { handleUserLogout } from "../api/auth";
 
 export interface IMenuItem {
   label: string;
   icon: React.ReactNode;
-  onClick?: () => void;
+  onClick: () => void;
 }
 
 const menuItems: IMenuItem[] = [
@@ -26,7 +27,7 @@ const menuItems: IMenuItem[] = [
   {
     label: "Logout",
     icon: <LogoutIcon />,
-    onClick: () => console.log("Log out user"),
+    onClick: () => handleUserLogout(),
   },
 ];
 

@@ -1,14 +1,14 @@
 import { Navigate } from "react-router-dom";
 import { useUserStore } from "../store/user.store";
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const email = useUserStore((state) => state.email);
 
-  if (!email) {
-    return <Navigate to="/sign-in" replace />;
+  if (email) {
+    return <Navigate to="/" replace />;
   }
 
   return children;
 };
 
-export default ProtectedRoute;
+export default PublicRoute;

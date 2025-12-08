@@ -7,6 +7,7 @@ import NotificationPage from "../pages/notifications-page";
 import ProtectedRoute from "./protected-route";
 import SignIn from "../pages/auth/sign-in";
 import SignUp from "../pages/auth/sign-up";
+import PublicRoute from "./public-route";
 
 const AppRoutes = () => {
   return (
@@ -23,8 +24,22 @@ const AppRoutes = () => {
         <Route path="/notifications" element={<NotificationPage />} />
       </Route>
 
-      <Route path="/sign-in" element={<SignIn />} />
-      <Route path="/sign-up" element={<SignUp />} />
+      <Route
+        path="/sign-in"
+        element={
+          <PublicRoute>
+            <SignIn />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/sign-up"
+        element={
+          <PublicRoute>
+            <SignUp />
+          </PublicRoute>
+        }
+      />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

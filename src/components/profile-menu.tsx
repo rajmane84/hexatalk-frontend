@@ -18,7 +18,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
         'scrollbar-hide absolute flex flex-col overflow-auto rounded-md border backdrop-blur-md',
         'max-h-[300px] min-h-[150px] w-[200px]',
         'divide-y divide-neutral-700/50 border-neutral-100/25 bg-black',
-        'bg-gradient-to-tr from-white/15 to-black/30 shadow-[var(--shadow-aceternity)] backdrop-blur-md',
+        'bg-linear-to-tr from-white/15 to-black/30 shadow-[var(--shadow-aceternity)] backdrop-blur-md',
         positionClass,
       )}
     >
@@ -26,7 +26,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({
         <div
           key={index}
           onClick={() => {
-            item.onClick?.();
+            item.onClick();
             onClose?.();
           }}
           className={clsx(

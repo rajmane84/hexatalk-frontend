@@ -5,6 +5,8 @@ import clsx from "clsx";
 import axios from "axios";
 import FormInput from "./form-input";
 import { useEffect } from "react";
+import { IconLoader2 } from "@tabler/icons-react";
+import { useUserStore } from "../store/user.store";
 
 type FormFields = {
   email: string;
@@ -14,10 +16,9 @@ type FormFields = {
 
 type ApiErrorResponse = {
   message: string;
-}
+};
 
 function SignUpForm() {
-
   const {
     register,
     handleSubmit,
@@ -28,6 +29,7 @@ function SignUpForm() {
   });
 
   const navigate = useNavigate();
+  const setUser = useUserStore((state) => state.setUser);
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     //We don't have to do the prevent default because handleSubmit do that for us
@@ -38,7 +40,13 @@ function SignUpForm() {
         { withCredentials: true, timeout: 10_000 },
       );
 
-      toast("Signup successfull ✅");
+      const response = await setUser(data.email, data.password);
+
+      if (!response.success) {
+        throw new Error(response.error || "Someting went wrong");
+      }
+
+      toast("Signed Up successfully ✅");
       navigate("/");
     } catch (error: unknown) {
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
@@ -56,11 +64,11 @@ function SignUpForm() {
     }
   };
 
-    useEffect(() => {
-      if (errors.root?.message) {
-        toast(errors.root.message);
-      }
-    }, [errors.root]);
+  useEffect(() => {
+    if (errors.root?.message) {
+      toast(errors.root.message);
+    }
+  }, [errors.root]);
 
   return (
     <form
@@ -119,12 +127,19 @@ function SignUpForm() {
         disabled={isSubmitting}
         className={clsx(
           "inline-flex h-10 w-full items-center justify-center rounded-md",
-          "bg-purple-500 font-medium text-white transition-color duration-300",
-          "border-none hover:bg-linear-to-tr from-purple-600 to-purple-500",
+          "transition-color bg-purple-500 font-medium text-white duration-300",
+          "border-none from-purple-600 to-purple-500 hover:bg-linear-to-tr",
           "cursor-pointer disabled:pointer-events-none disabled:opacity-50",
         )}
       >
-        {isSubmitting ? "Submitting..." : "Submit"}
+        {isSubmitting ? (
+          <>
+            <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
+            Submitting...
+          </>
+        ) : (
+          "Submit"
+        )}
       </button>
     </form>
   );
