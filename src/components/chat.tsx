@@ -3,7 +3,7 @@ import { DoubleTickIcon } from "./icons";
 import clsx from "clsx";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { type Friends } from "../api/user.api";
+import type { Friends } from "../types/user.type";
 
 const Chat = ({ chat }: { chat: Friends }) => {
   const [lastMessageSeen, setLastMessageSeen] = useState<boolean>(false);
@@ -21,7 +21,7 @@ const Chat = ({ chat }: { chat: Friends }) => {
     >
       <Avatar />
       <div className="flex flex-col gap-0.5">
-        <h1 className="text-md font-semibold text-white">{chat.username}</h1>
+        <h1 className="text-md font-semibold text-white">{chat.fullname}</h1>
         <div className="flex items-center gap-0.5">
           <DoubleTickIcon
             className={clsx(

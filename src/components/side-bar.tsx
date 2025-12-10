@@ -2,8 +2,10 @@ import SearchBar from "./search-bar";
 import { cn } from "../utils/cn";
 import Chat from "./chat";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
-import { useEffect, useState } from "react";
-import { getAllFriends, type Friends } from "../api/user.api";
+import { useEffect, useState, useMemo } from "react";
+import { getAllFriends } from "../api/user.api";
+import type { Friends } from "../types/user.type";
+import NewChatScreen from "./new-chat-screen";
 
 const NewChatIcon = ({ classname }: { classname?: string }) => {
   return (
@@ -24,12 +26,13 @@ const NewChatIcon = ({ classname }: { classname?: string }) => {
 
 function SideBar() {
   const [chatDetails, setChatDetails] = useState<Friends[]>([]);
+  const [newChatOptions, setNewChatOptions] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     const fetchFriends = async () => {
       try {
         const data = await getAllFriends();
-
         if (data) {
           setChatDetails(data);
         }
@@ -41,27 +44,58 @@ function SideBar() {
     fetchFriends();
   }, []);
 
-  console.log("Chat Details: ", chatDetails);
+  const filteredChats = useMemo(() => {
+    if (!searchQuery) return chatDetails;
+    return chatDetails.filter((chat) => {
+      const nameToCheck = chat.fullname || chat.username || "";
+      return nameToCheck.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+  }, [chatDetails, searchQuery]);
 
   return (
     <div className="fixed inset-y-0 left-0 mt-16 min-h-screen w-[300px] space-y-4 border-r border-neutral-100/15 px-2">
       <div className="my-4 flex items-center justify-between px-2">
-        <h1 className="text-xl font-semibold text-neutral-200 select-none">Chats</h1>
+        <h1 className="text-xl font-semibold text-neutral-200 select-none">
+          Chats
+        </h1>
         <Tooltip>
           <TooltipTrigger>
-            {" "}
-            <NewChatIcon classname="cursor-pointer size-7 mt-3" />
+            <div onClick={() => setNewChatOptions((prev) => !prev)}>
+              <NewChatIcon classname="cursor-pointer size-7 mt-3 text-neutral-400 hover:text-white transition-colors" />
+            </div>
           </TooltipTrigger>
           <TooltipContent>
             <p>New chat</p>
           </TooltipContent>
         </Tooltip>
       </div>
-      <SearchBar />
-      <div className="scrollbar-hide flex h-screen flex-col gap-3 overflow-y-auto">
-        {chatDetails.map((chat, index) => (
-          <Chat key={index} chat={chat} />
-        ))}
+
+      <SearchBar
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onClear={() => setSearchQuery("")}
+        placeholder="Search chats..."
+      />
+
+      {newChatOptions && (
+        <div className="absolute top-16 -right-32 z-50 w-full px-2">
+          <NewChatScreen
+            onClose={() => setNewChatOptions(false)}
+            className="shadow-2xl shadow-black"
+          />
+        </div>
+      )}
+
+      <div className="scrollbar-hide flex h-screen flex-col gap-3 overflow-y-auto pb-24">
+        {filteredChats.length > 0 ? (
+          filteredChats.map((chat, index) => <Chat key={index} chat={chat} />)
+        ) : (
+          <span className="mt-4 text-center text-sm text-neutral-500">
+            {searchQuery
+              ? `No chats found for "${searchQuery}"`
+              : "You haven’t started any chats yet"}
+          </span>
+        )}
       </div>
     </div>
   );
