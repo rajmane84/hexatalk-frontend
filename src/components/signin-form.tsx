@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { IconLoader2 } from "@tabler/icons-react";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm, type ErrorOption, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 import { useUserStore } from "../store/user.store";
 import { useEffect } from "react";
 import clsx from "clsx";
 import FormInput from "./form-input";
+import { handleUserSignin } from "../api/auth.api";
 
 interface FormFields {
   email: string;
@@ -23,23 +24,19 @@ function SignInForm() {
   } = useForm<FormFields>({ defaultValues: { email: "", password: "" } });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
-    try {
-      const response = await setUser(data.email, data.password);
+    const { email, password } = data;
+    const response = await handleUserSignin({ email, password });
 
-      if (!response.success) {
-        throw new Error(response.error || "Someting went wrong");
-      }
+    if (!response.success) {
+      const message = response.error?.message;
+      setError("root", message as ErrorOption);
+    } else {
+      const { token, payload } = response.data;
+      setUser(payload.email, payload.username);
 
+      localStorage.setItem("token", token);
       toast("LoggedIn successfully ✅");
       navigate("/");
-    } catch (error: unknown) {
-      let message = "Something went wrong";
-
-      if (error instanceof Error) {
-        message = error.message;
-      }
-
-      setError("root", { message });
     }
   };
 

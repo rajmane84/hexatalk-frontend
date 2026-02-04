@@ -2,17 +2,13 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import axios from "axios";
 
 type UserStore = {
   email: string | null;
   username: string | null;
   _hasHydrated: boolean;
   userLogout: () => void;
-  setUser: (
-    email: string,
-    password: string,
-  ) => Promise<{ success: boolean; error?: string }>;
+  setUser: (email: string, username: string) => void;
   asyncFn: () => Promise<void>;
 };
 
@@ -28,42 +24,11 @@ export const useUserStore = create<UserStore>()(
         set({ email: null, username: null });
       },
 
-      setUser: async (email, password) => {
-        try {
-          const response = await axios.post(
-            `${import.meta.env.VITE_HTTP_BACKEND_URL}/api/v1/auth/login`,
-            { email, password },
-            { withCredentials: true, timeout: 10_000 },
-          );
-
-          const { user, token } = response.data;
-          console.log("Token received: ", token);
-
-          set({
-            email: user.email,
-            username: user.username,
-          });
-
-          if (token) {
-            localStorage.setItem("token", token);
-          }
-
-          return { success: true };
-        } catch (error: unknown) {
-          let message: string;
-          if (axios.isAxiosError(error)) {
-            console.log("Axios error occurred:", error.response?.data.message);
-            message = error.response?.data.message;
-          } else if (error instanceof Error) {
-            console.log(error.message);
-            message = error.message;
-          } else {
-            console.log("Unexpected error occurred");
-            message = "Unexpected error occurred";
-          }
-
-          return { success: false, error: message };
-        }
+      setUser: async (email, username) => {
+        set({
+          email,
+          username,
+        });
       },
 
       asyncFn: async () => {

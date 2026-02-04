@@ -2,34 +2,60 @@ import axios from "axios";
 import { redirect } from "react-router-dom";
 import { useUserStore } from "../store/user.store";
 import { toast } from "sonner";
+import { axiosInstance } from "../utils/axios";
+import {
+  handleApiError,
+  type NormalizedApiError,
+} from "../utils/handleApiError";
 
 interface ISignup {
   email: string;
   password: string;
   username: string;
+  fullname: string;
+}
+
+interface ISignin {
+  email: string;
+  password: string;
 }
 
 export const handleUserSignup = async ({
   username,
   email,
   password,
-}: ISignup): Promise<unknown | null> => {
+  fullname,
+}: ISignup) => {
   try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_HTTP_BACKEND_URL}/api/v1/auth/sign-up`,
-      { email, password, username },
-      { withCredentials: true, timeout: 10_000 },
-    );
+    const response = await axiosInstance.post("/api/v1/auth/sign-up", {
+      email,
+      password,
+      username,
+      fullname,
+    });
 
-    return response.data;
+    return { success: true, data: response.data };
   } catch (error: unknown) {
-    // TODO: Make the errors prettier
-    console.log("some error occured", error);
-    return null;
+    const normalizedError = handleApiError(error);
+    return { success: false, error: normalizedError };
   }
 };
 
-export const handleUserLogout = async (): Promise<void> => {
+export const handleUserSignin = async ({ email, password }: ISignin) => {
+  try {
+    const response = await axiosInstance.post("/api/v1/auth/login", {
+      email,
+      password,
+    });
+
+    return { success: true, data: response.data };
+  } catch (error: unknown) {
+    const normalizedError = handleApiError(error);
+    return { success: false, error: normalizedError };
+  }
+};
+
+export const handleUserLogout = async () => {
   const { email, username, userLogout } = useUserStore.getState();
 
   if (email === null || username === null) {
@@ -41,23 +67,20 @@ export const handleUserLogout = async (): Promise<void> => {
   const token = localStorage.getItem("token");
 
   try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_HTTP_BACKEND_URL}/api/v1/auth/logout`,
-      { headers: { Authorization: `Bearer ${token}` }, withCredentials: true },
-    );
+    await axiosInstance.get("/api/v1/auth/logout", {
+      headers: { Authorization: `Bearer ${token}` },
+      withCredentials: true,
+    });
 
-    console.log("Logout response: ", response);
+    localStorage.removeItem("token");
     userLogout();
     redirect("/sign-in");
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      console.log("Axios error occurred:", error.response?.data.message);
-    } else if (error instanceof Error) {
-      console.log(error.message);
-    } else {
-      console.log("Unexpected error occurred");
-    }
 
+    return;
+  } catch (error: unknown) {
+    const normalizedError = handleApiError(error);
+    console.error(normalizedError);
     toast.error("User Logout Failed");
+    return;
   }
 };

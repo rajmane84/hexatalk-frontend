@@ -1,21 +1,18 @@
 import { useNavigate } from "react-router-dom";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm, type ErrorOption, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 import clsx from "clsx";
-import axios from "axios";
 import FormInput from "./form-input";
 import { useEffect } from "react";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useUserStore } from "../store/user.store";
+import { handleUserSignup } from "../api/auth.api";
 
 type FormFields = {
+  fullname: string;
   email: string;
   password: string;
   username: string;
-};
-
-type ApiErrorResponse = {
-  message: string;
 };
 
 function SignUpForm() {
@@ -25,7 +22,7 @@ function SignUpForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<FormFields>({
-    defaultValues: { email: "", username: "", password: "" },
+    defaultValues: { email: "", username: "", password: "", fullname: "" },
   });
 
   const navigate = useNavigate();
@@ -33,34 +30,19 @@ function SignUpForm() {
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     //We don't have to do the prevent default because handleSubmit do that for us
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_HTTP_BACKEND_URL}/api/v1/auth/sign-up`,
-        data,
-        { withCredentials: true, timeout: 10_000 },
-      );
 
-      const response = await setUser(data.email, data.password);
+    const { email, username, password, fullname  } = data;
+    const response = await handleUserSignup({ username, email, password, fullname });
 
-      if (!response.success) {
-        throw new Error(response.error || "Someting went wrong");
-      }
+    if (!response.success) {
+      setError("root", response.error?.message as ErrorOption);
+    } else {
+      const {token, payload} = response.data;
+      setUser(payload.email, payload.username);
 
+      localStorage.setItem("token", token);
       toast("Signed Up successfully ✅");
       navigate("/");
-    } catch (error: unknown) {
-      if (axios.isAxiosError<ApiErrorResponse>(error)) {
-        console.log("Axios error:", error.response?.data?.message);
-
-        setError("root", {
-          message: (error.response?.data?.message ??
-            "Something went wrong") as string,
-        });
-      } else if (error instanceof Error) {
-        setError("root", { message: error.message });
-      } else {
-        setError("root", { message: "Unexpected error" });
-      }
     }
   };
 
@@ -75,6 +57,17 @@ function SignUpForm() {
       className="w-full max-w-md space-y-6"
       onSubmit={handleSubmit(onSubmit)}
     >
+      <FormInput
+        label="Full Name"
+        type="text"
+        id="fullname"
+        placeholder="Enter your full name"
+        error={errors.email?.message}
+        {...register("fullname", {
+          required: "Full Name is required"
+        })}
+      />
+
       <FormInput
         label="Email"
         type="text"
