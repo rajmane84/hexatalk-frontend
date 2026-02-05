@@ -97,7 +97,7 @@ export const getAllFriendSuggestions = async() => {
   try {
     // TODO: For now we're displaying all the users available in the db, but in future we'll use some algorithm to display the suggestions
     // so we'll change this route in the future
-    const response = await axiosInstance.get("/api/v1/user/all");
+    const response = await axiosInstance.get("/api/v1/user/suggestions");
     return response.data;
   } catch (error) {
     const normalizedMessage = handleApiError(error);
@@ -105,5 +105,20 @@ export const getAllFriendSuggestions = async() => {
 
     toast.error(message);
     return null;
+  }
+}
+
+export const sendFriendRequest = async (username: string) => {
+  try {
+    const response = await axiosInstance.post(`/api/v1/user/add-friend`, {username});
+    // @ts-ignore
+    toast.success(response.message || "Friend request send successfully");
+    return {success: true}
+  } catch (error: unknown) {
+    let normalizedMessage = handleApiError(error);
+
+    let message = normalizedMessage.message || "Failed to send request";
+    toast.error(message);
+    return {success: false};
   }
 }

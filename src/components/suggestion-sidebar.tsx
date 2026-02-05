@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SearchBar from "./search-bar";
-import { getAllFriendSuggestions } from "../api/user.api";
+import { getAllFriendSuggestions, sendFriendRequest } from "../api/user.api";
 
 type FriendSuggestion = {
   _id: string;
@@ -16,21 +16,28 @@ const FriendsSidebar = () => {
 
   async function fetchSuggestions() {
     const suggestions = await getAllFriendSuggestions();
-
-    if (!suggestions) return;
-    console.log(suggestions);
-    setSuggestions(suggestions);
+    if (suggestions) setSuggestions(suggestions);
   }
 
-  function handleAddFriend(userId: string) {
-    setRequestedIds((prev) => [...prev, userId]);
+  async function handleAddFriend(user: FriendSuggestion) {
+    setRequestedIds((prev) => [...prev, user._id]);
+
+    const response = await sendFriendRequest(user.username);
+
+    if (!response.success) {
+      setRequestedIds((prev) => prev.filter((id) => id !== user._id));
+      return;
+    }
   }
 
-  const filteredSuggestions = suggestions.filter(
-    (user) =>
-      user.fullname.toLowerCase().includes(searchVal.toLowerCase()) ||
-      user.username.toLowerCase().includes(searchVal.toLowerCase()),
-  );
+  const filteredSuggestions = useMemo(() => {
+    const lowerSearch = searchVal.toLowerCase();
+    return suggestions.filter(
+      (user) =>
+        user.fullname.toLowerCase().includes(lowerSearch) ||
+        user.username.toLowerCase().includes(lowerSearch),
+    );
+  }, [searchVal, suggestions]);
 
   useEffect(() => {
     fetchSuggestions();
@@ -84,7 +91,8 @@ const FriendsSidebar = () => {
 
             <button
               disabled={requestedIds.includes(user._id)}
-              onClick={() => handleAddFriend(user._id)}
+              aria-disabled={requestedIds.includes(user._id)}
+              onClick={() => handleAddFriend(user)}
               className={`rounded-lg px-3 py-1 text-xs font-medium text-white transition ${
                 requestedIds.includes(user._id)
                   ? "cursor-not-allowed bg-neutral-700"
