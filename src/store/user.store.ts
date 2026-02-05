@@ -6,9 +6,10 @@ import { persist } from "zustand/middleware";
 type UserStore = {
   email: string | null;
   username: string | null;
+  avatarUrl: string;
   _hasHydrated: boolean;
   userLogout: () => void;
-  setUser: (email: string, username: string) => void;
+  setUser: (email: string, username: string, avatarUrl: string) => void;
   asyncFn: () => Promise<void>;
 };
 
@@ -17,17 +18,19 @@ export const useUserStore = create<UserStore>()(
     (set) => ({
       email: null,
       username: null,
+      avatarUrl: '',
       _hasHydrated: false,
 
       userLogout: () => {
         localStorage.removeItem("token");
-        set({ email: null, username: null });
+        set({ email: null, username: null, avatarUrl: '' });
       },
 
-      setUser: async (email, username) => {
+      setUser: async (email, username, avatarUrl) => {
         set({
           email,
           username,
+          avatarUrl
         });
       },
 

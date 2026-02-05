@@ -1,7 +1,9 @@
+import FriendsSidebar from "../components/suggestion-sidebar";
+
 const HomePage = () => {
   return (
-    <div className="flex h-full w-full items-center justify-center">
-      <div className="flex flex-col items-center gap-1">
+    <div className="flex h-full w-full">
+      <div className="flex flex-col items-center justify-center gap-1 flex-1">
         <img
           alt="hexatalk-logo"
           src={"/hexatalk-logo.svg"}
@@ -16,6 +18,8 @@ const HomePage = () => {
           Send and Receive messages without keeping your phone online.
         </p>
       </div>
+      
+      <FriendsSidebar />
     </div>
   );
 };

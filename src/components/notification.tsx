@@ -9,9 +9,8 @@ const Notification = ({ request }: { request: FriendRequest }) => {
     const response = await acceptRequest(request._id);
 
     if (response === null) return;
-    else {
-      toast.success("🎉 You’re now friends!");
-    }
+
+    toast.success("🎉 You’re now friends!");
 
     return;
   };
@@ -20,9 +19,9 @@ const Notification = ({ request }: { request: FriendRequest }) => {
     const response = await declineRequest(request._id);
 
     if (response === null) return;
-    else {
-      toast.success("❎ Friend request declined");
-    }
+    toast.success("❎ Friend request declined");
+
+    return;
   };
 
   return (

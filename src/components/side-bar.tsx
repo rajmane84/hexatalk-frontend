@@ -31,14 +31,11 @@ function SideBar() {
 
   useEffect(() => {
     const fetchFriends = async () => {
-      try {
-        const data = await getAllFriends();
-        if (data) {
-          setChatDetails(data);
-        }
-      } catch (error) {
-        console.error("Error fetching friends:", error);
-      }
+      const friends = await getAllFriends();
+      
+      if (friends) {
+        setChatDetails(friends);
+      } 
     };
 
     fetchFriends();

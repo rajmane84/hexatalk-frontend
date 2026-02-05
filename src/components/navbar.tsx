@@ -6,6 +6,7 @@ import { LogoutIcon, SettingsIcon, SparkleIcon, UserIcon } from "./icons";
 import { Outlet, useNavigate } from "react-router-dom";
 import Container from "./container";
 import { handleUserLogout } from "../api/auth.api";
+import { useUserStore } from "../store/user.store";
 
 export interface IMenuItem {
   label: string;
@@ -34,6 +35,7 @@ const menuItems: IMenuItem[] = [
 const Navbar = () => {
   const [open, setOpen] = useState<boolean>(false);
   const navigate = useNavigate();
+  const avatarUrl = useUserStore(state => state.avatarUrl);
 
   return (
     <>
@@ -78,7 +80,7 @@ const Navbar = () => {
             onClick={() => navigate("/notifications")}
           />
           <div className="absolute top-2 left-3 size-2 rounded-full bg-green-500"></div>
-          <Avatar onClick={() => setOpen((prev) => !prev)} />
+          <Avatar onClick={() => setOpen((prev) => !prev)} avatarUrl={avatarUrl}/>
           {open && (
             <ProfileMenu
               items={menuItems}

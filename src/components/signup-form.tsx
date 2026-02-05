@@ -38,7 +38,7 @@ function SignUpForm() {
       setError("root", response.error?.message as ErrorOption);
     } else {
       const {token, payload} = response.data;
-      setUser(payload.email, payload.username);
+      setUser(payload.email, payload.username, payload.avatarUrl);
 
       localStorage.setItem("token", token);
       toast("Signed Up successfully ✅");

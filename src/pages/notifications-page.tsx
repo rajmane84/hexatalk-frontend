@@ -9,20 +9,17 @@ const NotificationPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const fetchRequest = async () => {
-      try {
-        const requests = await getAllFriendRequests();
-        if (requests) {
-          setAllRequests(
-            requests.filter((request) => request.status === "PENDING"),
-          );
-        }
-      } catch (error) {
-        console.error("Failed to fetch all requests", error);
+    const fetchUserRequest = async () => {
+      const requests = await getAllFriendRequests();
+
+      if (requests) {
+        setAllRequests(
+          requests.filter((request: any) => request.status === "PENDING"),
+        );
       }
     };
 
-    fetchRequest();
+    fetchUserRequest();
   }, []);
 
   // Filter requests based on sender's name or username

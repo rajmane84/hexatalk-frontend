@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useUserStore } from "../store/user.store";
 import { toast } from "sonner";
 import type {
@@ -7,8 +6,10 @@ import type {
   GetAllRequests,
   GetFriendsResponse,
 } from "../types/user.type";
+import { axiosInstance } from "../utils/axios";
+import { handleApiError } from "../utils/handleApiError";
 
-export const getAllFriends = async (): Promise<Friends[] | null> => {
+export const getAllFriends = async ()=> {
   const { email, username } = useUserStore.getState();
 
   if (!email || !username) {
@@ -18,53 +19,30 @@ export const getAllFriends = async (): Promise<Friends[] | null> => {
   }
 
   try {
-    const response = await axios.get<GetFriendsResponse>(
-      `${import.meta.env.VITE_HTTP_BACKEND_URL}/api/v1/users/friends`,
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        withCredentials: true,
-      },
-    );
+    const response = await axiosInstance.get("/api/v1/user/friends")
 
     return response.data.friends;
   } catch (error: unknown) {
-    let message;
+    const normalizedMessage = handleApiError(error);
 
-    if (axios.isAxiosError(error)) {
-      message = error.response?.data.message;
-      console.log(message);
-    } else if (error instanceof Error) {
-      console.log(error.message);
-    } else {
-      console.log("Unexpected error occurred");
-    }
+    const message = normalizedMessage.message || "Failed to load chat list"
 
-    toast.error("Failed to load chat list");
+    toast.error(message);
     return null;
   }
 };
 
 export const getAllFriendRequests = async () => {
   try {
-    const response = await axios.get<GetAllRequests>(
-      `${import.meta.env.VITE_HTTP_BACKEND_URL}/api/v1/users/all-requests`,
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        withCredentials: true,
-      },
-    );
+    const response = await axiosInstance.get("/api/v1/user/all-requests");
 
     return response.data.requests;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.log("Axios error occurred:", error.response?.data.message);
-    } else if (error instanceof Error) {
-      console.log(error.message);
-    } else {
-      console.log("Unexpected error occurred");
-    }
+  } catch (error: unknown) {
+    const normalizedMessage = handleApiError(error);
+    const message = normalizedMessage.message || "Failed to fetch friend requests";
 
-    toast.error("Failed to fetch friend requests");
+    toast.error(message);
+    return null;
   }
 };
 
@@ -77,32 +55,17 @@ export const acceptRequest = async (requestId: string) => {
     return null;
   }
 
-  const token = localStorage.getItem('token');
-  console.log(token);
-
   try {
-    const response = await axios.post<AcceptFriendRequest>(
-      `${import.meta.env.VITE_HTTP_BACKEND_URL}/api/v1/users/accept-request/${requestId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      },
-    );
+    const response = await axiosInstance.get(`/api/v1/user/accept-request/${requestId}`)
 
-    return response.data.message;
+    // @ts-ignore
+    return response.message;
   } catch (error: unknown) {
-    let message;
+    
+    const normalizedMessage = handleApiError(error);
+    const message = normalizedMessage.message || "Failed to Accept request";
 
-    if (axios.isAxiosError(error)) {
-      message = error.response?.data.message;
-      console.log(message);
-    } else if (error instanceof Error) {
-      console.log(error.message);
-    } else {
-      console.log("Unexpected error occurred");
-    }
-
-    toast.error("Failed to Accept request");
+    toast.error(message);
     return null;
   }
 };
@@ -117,28 +80,30 @@ export const declineRequest = async (requestId: string) => {
   }
 
   try {
-    const response = await axios.post<AcceptFriendRequest>(
-      `${import.meta.env.VITE_HTTP_BACKEND_URL}/api/v1/users/accept-request/${requestId}`,
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        withCredentials: true,
-      },
-    );
+    const response = await axiosInstance.get(`/api/v1/users/accept-request/${requestId}`)
 
-    return response.data.message;
+    // @ts-ignore
+    return response.message;
   } catch (error: unknown) {
-    let message;
+    const normalizedMessage = handleApiError(error);
+    const message = normalizedMessage.message || "Failed to reject the request";
 
-    if (axios.isAxiosError(error)) {
-      message = error.response?.data.message;
-      console.log(message);
-    } else if (error instanceof Error) {
-      console.log(error.message);
-    } else {
-      console.log("Unexpected error occurred");
-    }
-
-    toast.error("Failed to reject the request");
+    toast.error(message);
     return null;
   }
 };
+
+export const getAllFriendSuggestions = async() => {
+  try {
+    // TODO: For now we're displaying all the users available in the db, but in future we'll use some algorithm to display the suggestions
+    // so we'll change this route in the future
+    const response = await axiosInstance.get("/api/v1/user/all");
+    return response.data;
+  } catch (error) {
+    const normalizedMessage = handleApiError(error);
+    const message = normalizedMessage.message || "Failed to fetch suggestions";
+
+    toast.error(message);
+    return null;
+  }
+}
