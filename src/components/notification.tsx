@@ -4,14 +4,21 @@ import type { FriendRequest } from "../types/user.type";
 import { acceptRequest, declineRequest } from "../api/user.api";
 import { toast } from "sonner";
 
-const Notification = ({ request }: { request: FriendRequest }) => {
+const Notification = ({
+  request,
+  onAccepted,
+}: {
+  request: FriendRequest;
+  onAccepted: (id: string) => void;
+}) => {
+  console.log("request", request);
   const handleAcceptRequest = async () => {
     const response = await acceptRequest(request._id);
 
     if (response === null) return;
 
     toast.success("🎉 You’re now friends!");
-
+    onAccepted(request._id);
     return;
   };
 

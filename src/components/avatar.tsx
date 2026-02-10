@@ -4,7 +4,7 @@ interface AvatarProps {
   height?: number;
   width?: number;
   size?: number;
-  avatarUrl: string;
+  avatarUrl?: string;
   onClick?: () => void
 }
 
@@ -18,7 +18,7 @@ const Avatar = ({
   return (
     <img
       alt="avatar"
-      src={avatarUrl.trim() || '/avatar.png'}
+      src={avatarUrl && avatarUrl.trim() || '/avatar.png'}
       height={height}
       width={width}
       onClick={onClick}
