@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { IconLoader2 } from "@tabler/icons-react";
-import { useForm, type ErrorOption, type SubmitHandler } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 import { useUserStore } from "../store/user.store";
 import { useEffect } from "react";
-import clsx from "clsx";
 import FormInput from "./form-input";
 import { handleUserSignin } from "../api/auth.api";
+import Button from "./button";
 
 interface FormFields {
   email: string;
@@ -29,7 +28,10 @@ function SignInForm() {
 
     if (!response.success) {
       const message = response.error?.message;
-      setError("root", message as ErrorOption);
+      setError("root", {
+        type: "manual",
+        message,
+      });
     } else {
       const { token, payload } = response.data;
       setUser(payload.email, payload.username, payload.avatarUrl);
@@ -48,7 +50,7 @@ function SignInForm() {
 
   return (
     <form
-      className="w-full max-w-md space-y-6"
+      className="w-full max-w-md space-y-5"
       onSubmit={handleSubmit(onSubmit)}
     >
       <FormInput
@@ -81,26 +83,14 @@ function SignInForm() {
           },
         })}
       />
-
-      <button
+      <Button
         type="submit"
+        loading={isSubmitting}
         disabled={isSubmitting}
-        className={clsx(
-          "inline-flex h-10 w-full items-center justify-center rounded-md",
-          "transition-color bg-purple-500 font-medium text-white duration-300",
-          "border-none from-purple-600 to-purple-500 hover:bg-linear-to-tr",
-          "cursor-pointer disabled:pointer-events-none disabled:opacity-50",
-        )}
+        className="w-full"
       >
-        {isSubmitting ? (
-          <>
-            <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
-            Logging In...
-          </>
-        ) : (
-          "Login"
-        )}
-      </button>
+        Login
+      </Button>
     </form>
   );
 }

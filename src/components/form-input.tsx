@@ -19,21 +19,30 @@ export default function FormInput({
       </label>
 
       <input
-        id={id}
-        aria-invalid={!!error}
-        className={clsx(
-          "flex h-10 w-full rounded-md border border-neutral-600 bg-neutral-700 px-3 py-2",
-          "text-base text-neutral-100 placeholder-neutral-400",
-          "transition-all outline-none",
-          "focus-visible:ring-1 focus-visible:ring-purple-500/50",
-          "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          error && "border-red-500 focus-visible:ring-red-500/50",
-          className,
-        )}
-        {...rest}
-      />
+  id={id}
+  aria-invalid={!!error}
+  className={clsx(
+    "flex h-11 w-full rounded-md border bg-neutral-800 px-3 py-2",
+    "text-base text-neutral-100 placeholder-neutral-400",
+    "transition-all outline-none",
+    "border-neutral-600 hover:border-neutral-500",
+    "focus-visible:ring-2 focus-visible:ring-purple-500/40",
+    "focus-visible:border-purple-500",
+    "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+    error &&
+      "border-red-500 focus-visible:ring-red-500/40 focus-visible:border-red-500",
+    className,
+  )}
+  {...rest}
+/>
 
-      {error && <p className="text-sm text-purple-400">{error}</p>}
+
+      {error && (
+  <p className="text-sm text-red-400 leading-tight">
+    {error}
+  </p>
+)}
+
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import SignInForm from "../../components/signin-form";
+import { Link } from "react-router-dom";
 
 const SignIn = () => {
   return (
@@ -31,12 +32,12 @@ const SignIn = () => {
         <div className="text-center">
           <p className="text-sm text-neutral-500/75">
             Don&apos;t have an account?{" "}
-            <a
-              href="/sign-up"
+            <Link
+              to="/sign-up"
               className="hover:text-puple-500/90 font-medium text-purple-500 transition-colors"
             >
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>
