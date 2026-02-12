@@ -5,19 +5,30 @@ import { useState } from "react";
 import SearchBar from "./search-bar";
 import { motion, AnimatePresence } from "motion/react";
 
+interface ChatDetails {
+  _id: string;
+  fullname: string;
+  username: string;
+  avatarUrl?: string;
+  isGroupChat?: boolean;
+}
+
 interface UserDetailProps {
-  name?: string;
-  avatarSrc?: string;
+  chatDetails: ChatDetails;
   onSearch?: (query: string) => void;
 }
 
-const UserDetail = ({
-  name = "Raj Mane",
-  avatarSrc,
-  onSearch,
-}: UserDetailProps) => {
+const UserDetail = ({ chatDetails, onSearch }: UserDetailProps) => {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const {
+    _id,
+    fullname,
+    username,
+    avatarUrl,
+    isGroupChat = false,
+  } = chatDetails;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -38,12 +49,22 @@ const UserDetail = ({
         "fixed top-16 left-[300px] z-40 flex h-12 w-[calc(100vw-300px)] items-center justify-between px-4 py-8",
         "border-b border-b-neutral-100/20 bg-neutral-900/50 backdrop-blur-md",
       )}
+      key={_id}
     >
       <div className="flex items-center gap-4">
-        <Avatar avatarUrl={avatarSrc} />
-        <h1 className="text-md font-semibold text-neutral-300 select-none">
-          {name}
-        </h1>
+        <Avatar avatarUrl={(avatarUrl && avatarUrl) || "/avatar.png"} />
+        {isGroupChat ? (
+          <h1>Group Chat</h1>
+        ) : (
+          <div className="flex flex-col gap-0.5">
+            <h1 className="text-md font-semibold text-neutral-300 select-none">
+              {fullname}
+            </h1>
+            <span className="text-xs text-neutral-500 select-none">
+              {username}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="relative">

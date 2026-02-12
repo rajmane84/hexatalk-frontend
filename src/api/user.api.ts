@@ -122,3 +122,7 @@ export const sendFriendRequest = async (username: string) => {
     return {success: false};
   }
 }
+
+export const getAllChats = async (username: string) => {
+  //
+}

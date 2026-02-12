@@ -4,6 +4,7 @@ export interface Friends {
   email: string;
   unreadCount: number;
   fullname: string;
+  chatId: string;
 }
 
 export interface GetFriendsResponse {

@@ -9,9 +9,11 @@ const Chat = ({ chat }: { chat: Friends }) => {
   const [lastMessageSeen, setLastMessageSeen] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  const {fullname, unreadCount, chatId} = chat;
+
   const handleClick = () => {
     setLastMessageSeen((prev) => !prev);
-    navigate("/chat/123");
+    navigate(`/chat/${chatId}`);
   };
 
   return (
@@ -21,7 +23,7 @@ const Chat = ({ chat }: { chat: Friends }) => {
     >
       <Avatar />
       <div className="flex flex-col gap-0.5">
-        <h1 className="text-md font-semibold text-white">{chat.fullname}</h1>
+        <h1 className="text-md font-semibold text-white">{fullname}</h1>
         <div className="flex items-center gap-0.5">
           <DoubleTickIcon
             className={clsx(
@@ -32,8 +34,8 @@ const Chat = ({ chat }: { chat: Friends }) => {
           <p className="text-xs font-medium text-neutral-400">Good night!!</p>
         </div>
       </div>
-      {chat.unreadCount > 0 && <div className="absolute top-4 right-2 flex size-6 items-center justify-center rounded-full bg-purple-600">
-        <span className="text-xs text-white">{chat.unreadCount}</span>
+      {unreadCount > 0 && <div className="absolute top-4 right-2 flex size-6 items-center justify-center rounded-full bg-purple-600">
+        <span className="text-xs text-white">{unreadCount}</span>
       </div>}
     </div>
   );
